@@ -1,0 +1,11 @@
+decision tree is highly sensitive to the training data
+which results in high variance...it might fail to generalize
+	
+
+RANDOM FOREST is less sensitive to training data
+
+Diabetes- Random forest 97%
+Heart- Random forest and Naive Bayes 86.89%(hybrid)
+Breast Cancer- Logistic regression 96.49%
+
+
