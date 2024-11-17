@@ -3,9 +3,9 @@ import numpy as np
 import pickle
 
 # Load the models
-diabetes_model = pickle.load(open(r'models\diabetes.pkl', 'rb'))
-cancer_model = pickle.load(open(r'models\cancer.pkl', 'rb'))
-heart_model = pickle.load(open(r'models\heart.pkl', 'rb'))
+diabetes_model = pickle.load(open(r'models/diabetes.pkl', 'rb'))
+cancer_model = pickle.load(open(r'models/cancer.pkl', 'rb'))
+heart_model = pickle.load(open(r'models/heart.pkl', 'rb'))
 
 # Function to predict Diabetes
 def predict_diabetes(data):
