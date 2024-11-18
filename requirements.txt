@@ -2,6 +2,8 @@ numpy
 pandas
 matplotlib
 seaborn
-scikit-learn
+scikit-learn==1.5.2
 scipy
 streamlit
+langchain_groq
+python-dotenv

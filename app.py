@@ -1,6 +1,21 @@
+import os
 import streamlit as st
 import numpy as np
 import pickle
+from dotenv import load_dotenv
+from langchain_groq.chat_models import ChatGroq
+
+load_dotenv()
+GROQ_API_KEY=os.getenv('GROQ_API_KEY')
+
+# Defining LLM
+llm = ChatGroq(
+    model="llama-3.1-8b-instant",
+    temperature=0,
+    max_tokens=None,
+    timeout=None,
+    max_retries=2,
+)
 
 # Load the models
 diabetes_model = pickle.load(open(r'models/diabetes.pkl', 'rb'))
@@ -42,7 +57,7 @@ st.markdown("---")
 st.sidebar.title("🩺 Choose the Disease")
 option = st.sidebar.radio(
     '🔍 Select Disease for Prediction',
-    ['Diabetes', 'Heart Disease', 'Cancer']
+    ['Diabetes', 'Heart Disease', 'Cancer','MedBot']
 )
 
 # Custom CSS for styling
@@ -104,6 +119,46 @@ if option == 'Diabetes':
                         - Regular check-ups to monitor blood sugar levels.
                         """
                     )
+    
+
+    prompt = (f"""
+    You are a medical AI assistant specializing in diabetes diagnosis and management. The following health metrics were recorded for a patient during a clinical assessment:
+
+    **Patient Health Metrics:**
+    - Number of Pregnancies: {data[0, 0]}
+    - Glucose Level: {data[0, 1]}
+    - Blood Pressure (mm Hg): {data[0, 2]}
+    - Skin Thickness (mm): {data[0, 3]}
+    - Insulin Level (µU/mL): {data[0, 4]}
+    - Body Mass Index (BMI): {data[0, 5]}
+    - Diabetes Pedigree Function (DPF): {data[0, 6]}
+    - Age (years): {data[0, 7]}
+
+    ### **Task:**
+    1. **Analyze the provided health metrics** and assess the likelihood of diabetes or prediabetes risk based on the data.
+    2. Identify key indicators that are outside the normal range and explain their relevance to diabetes risk.
+    3. Provide actionable recommendations, including lifestyle changes, dietary adjustments, or further medical evaluations.
+    4. Highlight any potential areas for immediate attention based on the patient's data.
+
+    Ensure your response is clear, evidence-based, and designed to be easily understood by both healthcare professionals and patients.
+    """)
+
+    messages = [
+            ("system", "You are a helpful medical assistant who predict the underlying problems based on the given prompt."),
+            ("human", prompt),
+            ]
+    
+   
+    
+            # Output from the model should contain both title and bio
+    if st.button("Generate"):
+        if prompt:
+            with st.spinner("Result is generating, please wait..."):
+                        ai_msg = llm.invoke(messages)
+                        st.write(f"LLM Response: {ai_msg.content}")
+
+
+
 
 # Heart Disease Prediction
 elif option == 'Heart Disease':
@@ -156,6 +211,49 @@ elif option == 'Heart Disease':
                         - Monitor heart health through yearly check-ups.
                         """
                     )
+
+    prompt=(
+        f"""You are a medical expert analyzing patient health data to assess cardiovascular health and provide actionable recommendations. The following parameters were recorded for a patient:
+
+    - Age: {data[0, 0]}
+    - Sex: {data[0, 1]} (1 = male, 0 = female)
+    - Chest Pain Type (CP): {data[0, 2]} (0 = typical angina, 1 = atypical angina, 2 = non-anginal pain, 3 = asymptomatic)
+    - Resting Blood Pressure (Trestbps): {data[0, 3]} mm Hg
+    - Cholesterol Level (Chol): {data[0, 4]} mg/dL
+    - Fasting Blood Sugar (FBS): {data[0, 5]} (1 = fasting blood sugar > 120 mg/dL, 0 = otherwise)
+    - Resting Electrocardiographic Results (Restecg): {data[0, 6]} (0 = normal, 1 = ST-T wave abnormality, 2 = probable or definite left ventricular hypertrophy)
+    - Maximum Heart Rate Achieved (Thalach): {data[0, 7]} bpm
+    - Exercise Induced Angina (Exang): {data[0, 8]} (1 = yes, 0 = no)
+    - Oldpeak: {data[0, 9]} (ST depression induced by exercise relative to rest)
+    - Slope of Peak Exercise ST Segment (Slope): {data[0, 10]} (0 = upsloping, 1 = flat, 2 = downsloping)
+    - Number of Major Vessels Colored by Fluoroscopy (Ca): {data[0, 11]} (0–3)
+    - Thalassemia (Thal): {data[0, 12]} (0 = normal, 1 = fixed defect, 2 = reversible defect)
+
+    ### **Task:**
+    1. **Analyze the data provided** and explain the possible health risks or conditions, particularly related to cardiovascular health.
+    2. Identify significant factors influencing the prediction based on these parameters.
+    3. Provide actionable recommendations to improve the patient's cardiovascular health, considering the given values.
+    4. Suggest medical tests, lifestyle changes, or treatments that the patient should consider based on the analysis.
+
+    Focus on presenting the explanation in simple, understandable language while maintaining accuracy.
+    """)
+    messages = [
+            ("system", "You are a helpful medical assistant who predict the underlying problems based on the given prompt."),
+            ("human", prompt),
+            ]
+    
+   
+    
+            # Output from the model should contain both title and bio
+    if st.button("Generate"):
+        if prompt:
+            with st.spinner("Result is generating, please wait..."):
+                        ai_msg = llm.invoke(messages)
+                        st.write(f"LLM Response: {ai_msg.content}")
+
+
+
+
 # Cancer Prediction
 elif option == 'Cancer':
     st.header("🎗️ Cancer Prediction")
@@ -214,3 +312,66 @@ elif option == 'Cancer':
                         - Keep track of any symptoms or changes and report them to a healthcare professional.
                         """
                     )
+
+    # Format the prompt with actual data
+    prompt = (f"""
+    You are a medical AI assistant specializing in cancer diagnostics and patient care. The following features were recorded from a medical analysis of a patient's breast tissue:
+
+    **Mean Values of Features:**
+    - Radius: {data[0, 0]}
+    - Texture: {data[0, 1]}
+    - Perimeter: {data[0, 2]}
+    - Area: {data[0, 3]}
+    - Smoothness: {data[0, 4]}
+    - Compactness: {data[0, 5]}
+    - Concavity: {data[0, 6]}
+    - Concave Points: {data[0, 7]}
+    - Symmetry: {data[0, 8]}
+    - Fractal Dimension: {data[0, 9]}
+
+    **Standard Error (SE) Values:**
+    - Radius: {data[0, 10]}
+    - Texture: {data[0, 11]}
+    - Perimeter: {data[0, 12]}
+    - Area: {data[0, 13]}
+    - Smoothness: {data[0, 14]}
+
+    ### **Task:**
+    1. **Analyze the features provided** and identify any abnormalities that may indicate potential risks, including benign or malignant characteristics.
+    2. Discuss the significance of each feature in assessing breast tissue health and its correlation to potential breast cancer risk.
+    3. Highlight key features that are highly indicative of malignancy based on their recorded values.
+    4. Provide actionable insights, including the next steps for medical evaluation, further diagnostic tests, or lifestyle recommendations.
+
+    Ensure your explanation is clear, evidence-based, and understandable to both healthcare professionals and non-experts.
+    """)
+    messages = [
+            ("system", "You are a helpful medical assistant who predict the underlying problems based on the given prompt."),
+            ("human", prompt),
+            ]
+    
+   
+    
+            # Output from the model should contain both title and bio
+    if st.button("Generate"):
+        if prompt:
+            with st.spinner("Result is generating, please wait..."):
+                        ai_msg = llm.invoke(messages)
+                        st.write(f"LLM Response: {ai_msg.content}")
+
+if option=='MedBot':
+        # Output from the model should contain both title and bio
+    st.info("Give Your Symptoms here 🏥")
+    prompt = st.text_area("Enter your query:")
+    messages = [
+        ("system", "You are a helpful medical assistant who predict the underlying problems based on the given prompt."),
+        ("human", prompt),
+    ]
+    
+    # Assuming 'llm.invoke' generates the response from the model
+    ai_msg = llm.invoke(messages)
+    
+    if st.button("Generate"):
+        if prompt:
+            with st.spinner("Result is generating, please wait..."):
+                ai_msg = llm.invoke(messages)
+                st.write(f"MedBot Response: {ai_msg.content}")
